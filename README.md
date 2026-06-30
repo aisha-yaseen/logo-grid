@@ -215,21 +215,43 @@ Import the repo. Framework preset: **Other**. Build command: _none_. Output dire
 
 ## Analytics Setup (optional)
 
-LogoGrid ships with **opt-in** analytics hooks that stay completely inert until you add your own IDs. Open `index.html` and edit the config block near the top:
+LogoGrid supports **Google Analytics 4** and **Microsoft Clarity**, but **no tracking ID is ever committed to the repo**. IDs are injected at build time from environment variables, so the source stays clean and analytics stays off when you just open the file locally.
+
+### How it works
+
+`index.html` holds inert placeholders:
 
 ```html
 <script>
   window.LOGOGRID_ANALYTICS = {
-    ga4:     "",   // Google Analytics 4: your "G-XXXXXXXXXX" measurement ID
-    clarity: ""    // Microsoft Clarity: your project id (free heatmaps + recordings)
+    ga4:     "__GA_MEASUREMENT_ID__",
+    clarity: "__CLARITY_PROJECT_ID__"
   };
 </script>
 ```
 
-- **Google Analytics 4**: create a property at [analytics.google.com](https://analytics.google.com) and paste the `G-XXXXXXXXXX` ID to track visitors.
-- **Microsoft Clarity**: create a free project at [clarity.microsoft.com](https://clarity.microsoft.com) for heatmaps and session recordings, then paste the project ID.
+At deploy time, [`scripts/inject-analytics.js`](scripts/inject-analytics.js) replaces those tokens with the values of your environment variables and writes the deployable site to `dist/`. Unreplaced placeholders are ignored by the loader, so nothing tracks until you set the env vars.
 
-Nothing loads and nothing is sent until you fill these in.
+### Setup on Vercel (or any host)
+
+1. **Create your properties:**
+   - **Google Analytics 4**: create a property at [analytics.google.com](https://analytics.google.com) to get your `G-XXXXXXXXXX` measurement ID.
+   - **Microsoft Clarity** (optional): create a free project at [clarity.microsoft.com](https://clarity.microsoft.com) for heatmaps and session recordings.
+2. **Add the environment variables** (Vercel → Project → Settings → Environment Variables):
+   | Name | Value |
+   | --- | --- |
+   | `GA_MEASUREMENT_ID` | `G-XXXXXXXXXX` |
+   | `CLARITY_PROJECT_ID` | your Clarity id (optional) |
+3. **Deploy.** [`vercel.json`](vercel.json) already sets the build command (`node scripts/inject-analytics.js`) and output directory (`dist`). Vercel runs it automatically.
+
+### Build it yourself
+
+```bash
+GA_MEASUREMENT_ID="G-XXXXXXXXXX" node scripts/inject-analytics.js
+# outputs a ready-to-host dist/ folder with the ID injected
+```
+
+Run it with no env vars and the placeholders are blanked out, leaving analytics fully off.
 
 ---
 

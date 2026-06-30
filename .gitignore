@@ -22,3 +22,6 @@ node_modules/
 
 # Claude Code / preview tooling (local only)
 .claude/
+
+# Build output
+dist/

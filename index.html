@@ -80,15 +80,17 @@
 </script>
 
 <!-- ============================================================
-     ANALYTICS (optional). Paste your own IDs below to track
-     visitors and heatmaps. Stays completely OFF until you do.
-     - GA4:     create a property at analytics.google.com → "G-XXXXXXXXXX"
-     - Clarity: free heatmaps + recordings at clarity.microsoft.com → project id
+     ANALYTICS — IDs are injected at build time from environment
+     variables (see scripts/inject-analytics.js + vercel.json), so
+     no tracking ID is ever committed to the repo. The __TOKENS__
+     below are replaced on deploy; left as-is they stay inert, so
+     opening the file locally loads no analytics.
+       Vercel env vars:  GA_MEASUREMENT_ID  ·  CLARITY_PROJECT_ID
      ============================================================ -->
 <script>
   window.LOGOGRID_ANALYTICS = {
-    ga4:     "",   // e.g. "G-XXXXXXXXXX"
-    clarity: ""    // e.g. "abcd1234ef"
+    ga4:     "__GA_MEASUREMENT_ID__",
+    clarity: "__CLARITY_PROJECT_ID__"
   };
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -1038,22 +1040,25 @@ window.addEventListener("drop", e => { e.preventDefault(); if (e.target.closest(
 
 render();
 
-/* ---------------- Analytics loader (only fires if you set IDs in <head>) ---------------- */
+/* ---------------- Analytics loader (fires only when build-time env IDs are injected) ---------------- */
 (function(){
   var cfg = window.LOGOGRID_ANALYTICS || {};
-  if (cfg.ga4 && /^G-/.test(cfg.ga4)) {
+  // Ignore unreplaced build placeholders (e.g. "__GA_MEASUREMENT_ID__") so nothing loads locally.
+  var ga4 = /^G-[A-Z0-9]+$/.test(cfg.ga4 || "") ? cfg.ga4 : "";
+  var clarity = /^[a-z0-9]+$/.test(cfg.clarity || "") ? cfg.clarity : "";
+  if (ga4) {
     var s = document.createElement("script"); s.async = true;
-    s.src = "https://www.googletagmanager.com/gtag/js?id=" + cfg.ga4;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + ga4;
     document.head.appendChild(s);
     window.dataLayer = window.dataLayer || [];
     window.gtag = function(){ dataLayer.push(arguments); };
-    gtag("js", new Date()); gtag("config", cfg.ga4);
+    gtag("js", new Date()); gtag("config", ga4);
   }
-  if (cfg.clarity) {
+  if (clarity) {
     (function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
       t=l.createElement(r); t.async=1; t.src="https://www.clarity.ms/tag/"+i;
       y=l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", cfg.clarity);
+    })(window, document, "clarity", "script", clarity);
   }
 })();
 </script>
