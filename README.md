@@ -246,12 +246,23 @@ At deploy time, [`scripts/inject-analytics.js`](scripts/inject-analytics.js) rep
 
 ### Build it yourself
 
+Copy [`.env.example`](.env.example) to `.env` (git-ignored) and add your IDs:
+
 ```bash
-GA_MEASUREMENT_ID="G-XXXXXXXXXX" node scripts/inject-analytics.js
-# outputs a ready-to-host dist/ folder with the ID injected
+cp .env.example .env
+# edit .env:
+#   GA_MEASUREMENT_ID=G-XXXXXXXXXX
+#   CLARITY_PROJECT_ID=xxxxxxxxxx
+node scripts/inject-analytics.js   # reads .env, outputs ready-to-host dist/
 ```
 
-Run it with no env vars and the placeholders are blanked out, leaving analytics fully off.
+Or pass them inline without a `.env` file:
+
+```bash
+GA_MEASUREMENT_ID="G-XXXXXXXXXX" CLARITY_PROJECT_ID="xxxxxxxxxx" node scripts/inject-analytics.js
+```
+
+Run it with no IDs at all and the placeholders are blanked out, leaving analytics fully off.
 
 ---
 
