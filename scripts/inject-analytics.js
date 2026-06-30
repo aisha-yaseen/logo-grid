@@ -19,6 +19,18 @@ const path = require("path");
 const ROOT = path.resolve(__dirname, "..");
 const OUT = path.join(ROOT, "dist");
 
+// Load a local .env (git-ignored) without any dependency. Real environment
+// variables always win, so hosts like Vercel keep full control.
+const envPath = path.join(ROOT, ".env");
+if (fs.existsSync(envPath)) {
+  for (const line of fs.readFileSync(envPath, "utf8").split("\n")) {
+    const m = /^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/.exec(line);
+    if (m && !(m[1] in process.env)) {
+      process.env[m[1]] = m[2].trim().replace(/^["']|["']$/g, "");
+    }
+  }
+}
+
 const ga = (process.env.GA_MEASUREMENT_ID || "").trim();
 const clarity = (process.env.CLARITY_PROJECT_ID || "").trim();
 
