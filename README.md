@@ -1,8 +1,8 @@
 <div align="center">
 
-# LogoGrid — Test Your Logo on 20 Real-World Backgrounds Instantly
+# LogoGrid: Test Your Logo on 20 Real-World Backgrounds Instantly
 
-**A free, open-source, privacy-first logo background tester. Drop in your logo and see — in one glance — how it holds up on light, dark, brand-colored, gradient, and busy photographic backgrounds. 100% in your browser. Nothing is ever uploaded.**
+**A free, open-source, privacy-first logo background tester. Drop in your logo and see, in one glance, how it holds up on light, dark, brand-colored, gradient, and busy photographic backgrounds. 100% in your browser. Nothing is ever uploaded.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-734d98.svg)](LICENSE)
 [![Made with Vanilla JS](https://img.shields.io/badge/Made%20with-Vanilla%20JS-f7df1e.svg)](#tech-stack)
@@ -18,7 +18,7 @@
 
 ## TL;DR
 
-**LogoGrid is a single-file HTML tool that previews any logo across 20 real-world background scenarios at once** — so designers, founders, and brand teams catch contrast failures *before* the logo ships. It runs entirely client-side (your logo never leaves your device), removes the logo's background automatically, and can generate 20 shades of any single brand color to stress-test against. No sign-up. No install. No build step. Free forever under the MIT license.
+**LogoGrid is a single-file HTML tool that previews any logo across 20 real-world background scenarios at once**, so designers, founders, and brand teams catch contrast failures *before* the logo ships. It runs entirely client-side (your logo never leaves your device), removes the logo's background automatically, and can generate 20 shades of any single brand color to stress-test against. No sign-up. No install. No build step. Free forever under the MIT license.
 
 > **Keywords:** logo background tester, logo contrast checker, logo on dark background, logo on light background, brand color tester, logo preview tool, logo mockup generator, test logo on backgrounds, free logo tool, open source design tool.
 
@@ -50,11 +50,11 @@
 
 ## What Is LogoGrid?
 
-**LogoGrid is a free, open-source logo background tester that renders your logo across 20 different background scenarios simultaneously.** Designers traditionally approve a logo on a clean white artboard — then it ships onto a dark hero section, a busy product photo, a yellow ad, or a 50%-gray button, and suddenly it's invisible or muddy. LogoGrid surfaces those failures instantly by showing every context side by side in a single grid.
+**LogoGrid is a free, open-source logo background tester that renders your logo across 20 different background scenarios simultaneously.** Designers traditionally approve a logo on a clean white artboard, then it ships onto a dark hero section, a busy product photo, a yellow ad, or a 50%-gray button, and suddenly it's invisible or muddy. LogoGrid surfaces those failures instantly by showing every context side by side in a single grid.
 
 In one sentence: **LogoGrid answers the question, "Will my logo actually survive in the real world?"**
 
-It is a static HTML page (one file, `index.html`) with no backend, no accounts, and no tracking by default. Everything — including background removal and color-variant generation — happens locally in your browser using the HTML Canvas API.
+It is a static HTML page (one file, `index.html`) with no backend, no accounts, and no tracking by default. Everything, including background removal and color-variant generation, happens locally in your browser using the HTML Canvas API.
 
 ---
 
@@ -64,10 +64,10 @@ A logo rarely lives on white. It lives on:
 
 - 🌑 **Dark mode UIs** and black OLED screens
 - ☀️ **Light app surfaces** and printed paper
-- 🎨 **Brand colors** — blue, red, green, purple, yellow, pink
+- 🎨 **Brand colors**: blue, red, green, purple, yellow, pink
 - 🌈 **Gradients** on marketing banners and splash screens
-- 📸 **Busy photos** — concrete, foliage, real-world textures
-- ⚪ **The dreaded 50% gray** — where most logos die (too dark for the light version, too light for the dark one)
+- 📸 **Busy photos**: concrete, foliage, real-world textures
+- ⚪ **The dreaded 50% gray**: where most logos die (too dark for the light version, too light for the dark one)
 
 Checking each context manually is slow and easy to skip. **LogoGrid makes it a three-second, zero-friction check** so contrast problems get caught during design review instead of by your customers.
 
@@ -77,7 +77,7 @@ Checking each context manually is slow and easy to skip. **LogoGrid makes it a t
 
 > **▶️ Try it live:** _add your deployment URL here (e.g. `https://logogrid.prompts2products.com` or your GitHub Pages link)._
 
-Or run it locally in 10 seconds — see [Quick Start](#quick-start). Because LogoGrid is a single self-contained `index.html`, you can also just **double-click the file** and it opens in your browser.
+Or run it locally in 10 seconds. See [Quick Start](#quick-start). Because LogoGrid is a single self-contained `index.html`, you can also just **double-click the file** and it opens in your browser.
 
 ---
 
@@ -86,21 +86,21 @@ Or run it locally in 10 seconds — see [Quick Start](#quick-start). Because Log
 | Feature | What it does |
 | --- | --- |
 | 🖼️ **20 background scenarios** | See your logo on light, dark, brand, gradient, and photographic backgrounds at once. |
-| ✂️ **Automatic background removal** | Knocks out the logo's backdrop with an edge flood-fill so it sits cleanly on every color — while preserving whites *inside* the logo. Toggle on/off anytime. |
-| 🎯 **Single-color mode** | Enter any hex code and instantly generate **20 variants of that one color** — tints, shades, tones, and gradients — to test your logo against a specific brand color. |
+| ✂️ **Automatic background removal** | Knocks out the logo's backdrop with an edge flood-fill so it sits cleanly on every color, while preserving whites *inside* the logo. Toggle on/off anytime. |
+| 🎯 **Single-color mode** | Enter any hex code and instantly generate **20 variants of that one color** (tints, shades, tones, and gradients) to test your logo against a specific brand color. |
 | 🔍 **Click-to-zoom lightbox** | Inspect any tile full-screen; browse all scenarios with arrow keys. |
 | 🎚️ **Live size, padding & fit controls** | Tune the logo's scale, clear-space, and contain/cover behavior across all tiles in real time. |
 | 🌗 **Light & dark theme** | The whole UI flips, including ambient glow and shadows. |
 | 🔒 **100% private & local** | No uploads, no accounts, no servers. Your unreleased brand never leaves your machine. |
 | 📦 **Zero install, zero build** | One HTML file. Works offline once loaded. Drag-and-drop a PNG or SVG. |
-| 📊 **Optional analytics** | Drop-in hooks for Google Analytics 4 and Microsoft Clarity (heatmaps) — off until you add your own ID. |
+| 📊 **Optional analytics** | Drop-in hooks for Google Analytics 4 and Microsoft Clarity (heatmaps), off until you add your own ID. |
 | ♿ **Accessible & responsive** | Keyboard navigation, ARIA roles, reduced-motion support, and a mobile-first responsive layout. |
 
 ---
 
 ## The 20 Background Scenarios
 
-LogoGrid ships with a deliberately brutal lineup — from boardroom-safe to torture test:
+LogoGrid ships with a deliberately brutal lineup, from boardroom-safe to torture test:
 
 | # | Scenario | Why it matters |
 | --- | --- | --- |
@@ -150,7 +150,7 @@ docs/
 
 LogoGrid has **no dependencies and no build step**. Pick whichever is easiest:
 
-### Option 1 — Just open the file
+### Option 1: Just open the file
 
 ```bash
 git clone https://github.com/prompts2products/logogrid.git
@@ -158,7 +158,7 @@ cd logogrid
 open index.html   # macOS  (use "start" on Windows, "xdg-open" on Linux)
 ```
 
-### Option 2 — Serve it locally (recommended for the web fonts)
+### Option 2: Serve it locally (recommended for the web fonts)
 
 ```bash
 git clone https://github.com/prompts2products/logogrid.git
@@ -176,13 +176,13 @@ That's it. There is nothing to compile, transpile, or install.
 ## Usage Guide
 
 1. **Drop in your logo.** Drag a PNG or SVG onto the page, or click **Upload**. Transparent PNGs and SVGs look best, but LogoGrid will auto-remove a solid background for you.
-2. **Scan all 20 tiles.** Look for tiles where the logo disappears, muddies, or glows oddly — those are your real-world failure points.
+2. **Scan all 20 tiles.** Look for tiles where the logo disappears, muddies, or glows oddly. Those are your real-world failure points.
 3. **Tune it.** Use the **Size** and **Padding** sliders and the **Contain / Cover** toggle to find the clear-space and scale that work everywhere.
 4. **Test a brand color.** Type a hex code (e.g. `#734D98`) and hit **Generate 20 variants** to see your logo on 20 shades of that single color.
 5. **Zoom in.** Click any tile to open the lightbox; use **← / →** to browse and **Esc** to close.
 6. **Flip the theme.** Toggle light/dark with the ☀️ / 🌙 button.
 
-Everything runs locally — **your logo is never uploaded anywhere.**
+Everything runs locally. **Your logo is never uploaded anywhere.**
 
 ---
 
@@ -202,7 +202,7 @@ Because it's a static file, LogoGrid deploys anywhere in seconds.
 <details>
 <summary><strong>Netlify</strong></summary>
 
-Drag the project folder onto [Netlify Drop](https://app.netlify.com/drop) — done. Or connect the repo; no build command needed (publish directory = root).
+Drag the project folder onto [Netlify Drop](https://app.netlify.com/drop). Done. Or connect the repo; no build command needed (publish directory = root).
 </details>
 
 <details>
@@ -220,14 +220,14 @@ LogoGrid ships with **opt-in** analytics hooks that stay completely inert until 
 ```html
 <script>
   window.LOGOGRID_ANALYTICS = {
-    ga4:     "",   // Google Analytics 4 — your "G-XXXXXXXXXX" measurement ID
-    clarity: ""    // Microsoft Clarity — your project id (free heatmaps + recordings)
+    ga4:     "",   // Google Analytics 4: your "G-XXXXXXXXXX" measurement ID
+    clarity: ""    // Microsoft Clarity: your project id (free heatmaps + recordings)
   };
 </script>
 ```
 
-- **Google Analytics 4** — create a property at [analytics.google.com](https://analytics.google.com) and paste the `G-XXXXXXXXXX` ID to track visitors.
-- **Microsoft Clarity** — create a free project at [clarity.microsoft.com](https://clarity.microsoft.com) for heatmaps and session recordings, then paste the project ID.
+- **Google Analytics 4**: create a property at [analytics.google.com](https://analytics.google.com) and paste the `G-XXXXXXXXXX` ID to track visitors.
+- **Microsoft Clarity**: create a free project at [clarity.microsoft.com](https://clarity.microsoft.com) for heatmaps and session recordings, then paste the project ID.
 
 Nothing loads and nothing is sent until you fill these in.
 
@@ -239,23 +239,23 @@ LogoGrid is pure front-end. Two pieces are worth understanding:
 
 ### Automatic background removal (edge flood-fill)
 
-When you upload a raster logo, LogoGrid draws it to an off-screen `<canvas>`, samples the four corners to estimate the background color, then runs a **flood-fill from the image edges**. Only the *contiguous* background touching the border is made transparent — so white pixels *inside* your logo are preserved. The result is exported as a transparent PNG. If anything can't be processed, it safely falls back to the original image.
+When you upload a raster logo, LogoGrid draws it to an off-screen `<canvas>`, samples the four corners to estimate the background color, then runs a **flood-fill from the image edges**. Only the *contiguous* background touching the border is made transparent, so white pixels *inside* your logo are preserved. The result is exported as a transparent PNG. If anything can't be processed, it safely falls back to the original image.
 
 ### Single-color variant generation (HSL)
 
-When you enter a hex code, LogoGrid converts it to HSL and procedurally builds 20 related backgrounds: the base color, a tint→shade lightness ladder, desaturated tones, three gradients, and a radial spotlight — all sharing the same hue. This lets you stress-test a logo against one brand color and its realistic range.
+When you enter a hex code, LogoGrid converts it to HSL and procedurally builds 20 related backgrounds: the base color, a tint→shade lightness ladder, desaturated tones, three gradients, and a radial spotlight, all sharing the same hue. This lets you stress-test a logo against one brand color and its realistic range.
 
-No frameworks, no canvas libraries, no external processing — just the standard browser APIs.
+No frameworks, no canvas libraries, no external processing. Just the standard browser APIs.
 
 ---
 
 ## Tech Stack
 
-- **HTML5** — semantic, single-file structure
-- **CSS3** — custom properties (design tokens), `clamp()` fluid type, container-friendly responsive grid, `prefers-reduced-motion` and `prefers-color-scheme` support
-- **Vanilla JavaScript (ES6+)** — no frameworks, no bundler, no dependencies
-- **HTML Canvas API** — for background removal and pixel work
-- **Google Fonts** — Inter + JetBrains Mono (with graceful system fallback)
+- **HTML5**: semantic, single-file structure
+- **CSS3**: custom properties (design tokens), `clamp()` fluid type, container-friendly responsive grid, `prefers-reduced-motion` and `prefers-color-scheme` support
+- **Vanilla JavaScript (ES6+)**: no frameworks, no bundler, no dependencies
+- **HTML Canvas API**: for background removal and pixel work
+- **Google Fonts**: Inter + JetBrains Mono (with graceful system fallback)
 
 **Total dependencies: 0. Total build steps: 0.**
 
@@ -263,13 +263,13 @@ No frameworks, no canvas libraries, no external processing — just the standard
 
 ## Roadmap
 
-Ideas and PRs welcome — see [Contributing](#contributing). Candidate features:
+Ideas and PRs welcome. See [Contributing](#contributing). Candidate features:
 
-- [ ] **Contrast-risk badges** — auto-flag tiles where the logo likely fails (WCAG-style scoring)
-- [ ] **Export a contact sheet** — render all 20 tiles to a single shareable PNG
-- [ ] **Real photographic backgrounds** — swap CSS textures for stock imagery
-- [ ] **Clear-space / safe-zone overlay** — visual minimum-margin guides
-- [ ] **Custom scenario sets** — save and share your own background presets
+- [ ] **Contrast-risk badges**: auto-flag tiles where the logo likely fails (WCAG-style scoring)
+- [ ] **Export a contact sheet**: render all 20 tiles to a single shareable PNG
+- [ ] **Real photographic backgrounds**: swap CSS textures for stock imagery
+- [ ] **Clear-space / safe-zone overlay**: visual minimum-margin guides
+- [ ] **Custom scenario sets**: save and share your own background presets
 - [ ] **Drag to reorder tiles**
 - [ ] **Shareable permalinks** that encode the uploaded logo + settings (local only)
 
@@ -277,7 +277,7 @@ Ideas and PRs welcome — see [Contributing](#contributing). Candidate features:
 
 ## Contributing
 
-**Contributions are very welcome** — this is a community tool. Whether it's a new background scenario, a bug fix, an accessibility improvement, or a docs tweak, we'd love your help.
+**Contributions are very welcome.** This is a community tool. Whether it's a new background scenario, a bug fix, an accessibility improvement, or a docs tweak, we'd love your help.
 
 👉 Read the [**Contributing Guide**](CONTRIBUTING.md) to get started.
 
@@ -294,7 +294,7 @@ By contributing you agree your work is licensed under the project's [MIT License
 ## FAQ
 
 ### What is LogoGrid?
-LogoGrid is a free, open-source tool that tests a logo against 20 different backgrounds at once — light, dark, brand colors, gradients, and busy photos — so you can spot contrast and visibility problems before the logo goes live. It runs entirely in your browser.
+LogoGrid is a free, open-source tool that tests a logo against 20 different backgrounds at once (light, dark, brand colors, gradients, and busy photos), so you can spot contrast and visibility problems before the logo goes live. It runs entirely in your browser.
 
 ### Is LogoGrid free?
 Yes. LogoGrid is 100% free and open source under the MIT license. There is no paid tier, no sign-up, and no usage limit.
@@ -306,10 +306,10 @@ No. LogoGrid is fully client-side. Your logo is processed locally in your browse
 PNG, SVG, JPEG, and WebP. Transparent PNGs and SVGs give the best results, but LogoGrid can automatically remove a solid background from raster logos.
 
 ### How do I test my logo on a dark background?
-Just upload your logo — LogoGrid instantly shows it on charcoal, true black, and navy scenarios (among 17 others). No configuration needed.
+Just upload your logo. LogoGrid instantly shows it on charcoal, true black, and navy scenarios (among 17 others). No configuration needed.
 
 ### Can I test my logo against a specific brand color?
-Yes. Enter any hex code and click **Generate 20 variants** to see your logo on 20 shades of that color — tints, shades, tones, and gradients.
+Yes. Enter any hex code and click **Generate 20 variants** to see your logo on 20 shades of that color: tints, shades, tones, and gradients.
 
 ### How does the automatic background removal work?
 LogoGrid uses an edge flood-fill on an HTML canvas: it samples the corner color and removes only the connected background touching the image border, preserving whites inside the logo. See [How It Works](#how-it-works).
@@ -355,20 +355,22 @@ LogoGrid is a tool by [Prompts2Products](https://prompts2products.com). See [Cre
 
 ## License
 
-Released under the [**MIT License**](LICENSE) — free to use, modify, self-host, and distribute. Attribution appreciated but not required.
+Released under the [**MIT License**](LICENSE). Free to use, modify, self-host, and distribute. Attribution appreciated but not required.
 
 ---
 
 ## Credits
 
-**LogoGrid is a tool by [Prompts2Products](https://prompts2products.com)** — helping non-technical founders build real products with AI.
+**LogoGrid is a tool by [Prompts2Products](https://prompts2products.com)**, helping non-technical founders build real products with AI.
 
-If LogoGrid saved you from shipping an invisible logo, please ⭐ **star the repo** and share it — it genuinely helps others discover the tool.
+Designed and built by **Aisha** for Prompts2Products.
+
+If LogoGrid saved you from shipping an invisible logo, please ⭐ **star the repo** and share it. It genuinely helps others discover the tool.
 
 <div align="center">
 
-**[⬆ back to top](#logogrid--test-your-logo-on-20-real-world-backgrounds-instantly)**
+**[⬆ back to top](#logogrid-test-your-logo-on-20-real-world-backgrounds-instantly)**
 
-Made with 💜 by [Prompts2Products](https://prompts2products.com)
+Made with 💜 by **Aisha** for [Prompts2Products](https://prompts2products.com)
 
 </div>
