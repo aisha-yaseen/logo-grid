@@ -1,0 +1,988 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>LogoGrid: see your logo on 20 backgrounds at once</title>
+<meta name="description" content="Drop in your logo and instantly see how it holds up across 20 real-world backgrounds: light, dark, brand colors, gradients and busy photos. 100% in your browser." />
+
+<!-- ============================================================
+     ANALYTICS (optional). Paste your own IDs below to track
+     visitors and heatmaps. Stays completely OFF until you do.
+     - GA4:     create a property at analytics.google.com → "G-XXXXXXXXXX"
+     - Clarity: free heatmaps + recordings at clarity.microsoft.com → project id
+     ============================================================ -->
+<script>
+  window.LOGOGRID_ANALYTICS = {
+    ga4:     "",   // e.g. "G-XXXXXXXXXX"
+    clarity: ""    // e.g. "abcd1234ef"
+  };
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
+<style>
+  /* ============================ TOKENS ============================ */
+  :root {
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --r-xl: 22px; --r-lg: 16px; --r-md: 12px; --r-sm: 9px;
+    --ease: cubic-bezier(.22,.61,.36,1);
+    --spring: cubic-bezier(.34,1.56,.64,1);
+    --accent: #734d98; --accent-2: #a06fc9; --accent-deep: #5d3d7e;
+    --maxw: 1180px;
+  }
+  html[data-theme="light"] {
+    --bg: #f7f1e3;
+    --bg-glow-1: rgba(115,77,152,.22);
+    --bg-glow-2: rgba(160,111,201,.18);
+    --panel: rgba(255,252,245,.78);
+    --panel-solid: #fffdf8;
+    --elevated: rgba(255,253,247,.92);
+    --border: rgba(74,48,98,.14);
+    --border-strong: rgba(74,48,98,.24);
+    --text: #2c2235;
+    --muted: #6c5f78;
+    --faint: #998c9f;
+    --shadow: 0 22px 60px -18px rgba(74,48,98,.32);
+    --tile-shadow: 0 1px 0 rgba(255,255,255,.7) inset, 0 16px 36px -22px rgba(74,48,98,.4);
+  }
+  html[data-theme="dark"] {
+    --bg: #1a1320;
+    --bg-glow-1: rgba(115,77,152,.28);
+    --bg-glow-2: rgba(160,111,201,.22);
+    --panel: rgba(40,30,52,.62);
+    --panel-solid: #241a2e;
+    --elevated: rgba(54,42,68,.8);
+    --border: rgba(255,255,255,.1);
+    --border-strong: rgba(255,255,255,.18);
+    --text: #f3eef8;
+    --muted: #b6a9c2;
+    --faint: #7d7088;
+    --shadow: 0 22px 60px -18px rgba(0,0,0,.7);
+    --tile-shadow: 0 1px 0 rgba(255,255,255,.05) inset, 0 18px 40px -22px rgba(0,0,0,.8);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: var(--font);
+    background: var(--bg); color: var(--text);
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    min-height: 100vh; position: relative; overflow-x: hidden;
+  }
+  body::before {
+    content: ""; position: fixed; inset: -25% -10% auto -10%; height: 95vh; z-index: -1;
+    background:
+      radial-gradient(38% 55% at 16% 6%, var(--bg-glow-1), transparent 70%),
+      radial-gradient(42% 55% at 88% -4%, var(--bg-glow-2), transparent 72%);
+    filter: blur(10px); pointer-events: none;
+  }
+  a { color: inherit; text-decoration: none; }
+  [hidden] { display: none !important; }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
+
+  /* ============================ NAV ============================ */
+  nav {
+    position: sticky; top: 0; z-index: 40;
+    background: var(--panel); backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-in { display: flex; align-items: center; gap: 18px; height: 62px; }
+  .brand { display: flex; align-items: center; gap: 11px; }
+  .mark {
+    width: 30px; height: 30px; border-radius: 8px; padding: 5px; flex: none;
+    background: conic-gradient(from 200deg, #734d98, #a06fc9, #c89bde, #b98ad0, #734d98);
+    display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 3px;
+    box-shadow: 0 6px 18px -6px rgba(115,77,152,.55);
+  }
+  .mark i { background: rgba(255,255,255,.92); border-radius: 2.5px; }
+  .mark i:nth-child(2){opacity:.55} .mark i:nth-child(3){opacity:.75}
+  .brand b { font-weight: 700; font-size: 16px; letter-spacing: -.02em; }
+  .nav-links { display: flex; gap: 26px; margin-left: 20px; }
+  .nav-links a { color: var(--muted); font-size: 14px; font-weight: 500; transition: color .15s; }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+  .btn {
+    border: 1px solid var(--border); background: var(--elevated); color: var(--text);
+    border-radius: var(--r-sm); padding: 9px 16px; cursor: pointer; font-family: inherit;
+    font-weight: 600; font-size: 13.5px; transition: .18s var(--ease);
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn:hover { border-color: var(--border-strong); transform: translateY(-1px); }
+  .btn.primary {
+    background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: #fff; border-color: transparent;
+    box-shadow: 0 8px 22px -8px rgba(115,77,152,.5);
+  }
+  .btn.primary:hover { box-shadow: 0 12px 30px -8px rgba(115,77,152,.7); }
+  .btn.lg { padding: 13px 24px; font-size: 15px; border-radius: var(--r-md); }
+  .icon-btn {
+    width: 36px; height: 36px; border-radius: var(--r-sm); border: 1px solid var(--border);
+    background: var(--elevated); color: var(--text); display: grid; place-items: center; cursor: pointer;
+    font-size: 15px; transition: .18s var(--ease);
+  }
+  .icon-btn:hover { border-color: var(--border-strong); }
+
+  /* ============================ HERO ============================ */
+  .hero { text-align: center; padding: 104px 0 64px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; font-weight: 600;
+    padding: 7px 16px 7px 10px; border-radius: 99px; color: var(--muted); letter-spacing: .01em;
+    background: var(--panel); border: 1px solid var(--border); margin-bottom: 34px;
+  }
+  .badge .dot { width: 7px; height: 7px; border-radius: 50%; background: #3ddc84; box-shadow: 0 0 0 3px rgba(61,220,132,.18); }
+  .badge b { color: var(--text); font-weight: 700; }
+  h1 {
+    font-size: clamp(36px, 5.6vw, 66px); line-height: 1.1; letter-spacing: -.03em; font-weight: 800;
+    margin: 0 auto 26px; max-width: 17ch; text-wrap: balance;
+  }
+  h1 .grad {
+    background: linear-gradient(120deg, var(--accent) 0%, var(--accent-2) 55%, #c89bde);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .lede { font-size: clamp(16px, 1.7vw, 19px); color: var(--muted); max-width: 60ch; margin: 0 auto 38px; line-height: 1.62; text-wrap: pretty; }
+  .hero-cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .hero-meta { margin-top: 26px; font-size: 12.5px; color: var(--faint); display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; }
+  .hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+  .hero-meta svg { width: 14px; height: 14px; color: var(--accent); }
+
+  /* Hero showcase: a fanned cluster of the logo surviving on different backgrounds */
+  .hero-stage {
+    margin: 66px auto 0; display: flex; justify-content: center; align-items: center;
+    min-height: 184px;
+  }
+  .hero-card {
+    width: 138px; height: 168px; border-radius: 20px; overflow: hidden; flex: none;
+    border: 1px solid rgba(255,255,255,.5); display: grid; place-items: center; margin: 0 -16px;
+    box-shadow: 0 22px 44px -22px rgba(74,48,98,.55);
+    transition: transform .45s var(--spring), box-shadow .45s var(--ease);
+    opacity: 0; animation: heroIn .6s var(--spring) forwards;
+  }
+  @keyframes heroIn { to { opacity: 1; } }
+  .hero-card .logo-svg { width: 56%; height: auto; filter: drop-shadow(0 3px 6px rgba(0,0,0,.16)); }
+  .hero-card:nth-child(1){ transform: rotate(-15deg) translateY(20px); z-index: 1; animation-delay: .05s; }
+  .hero-card:nth-child(2){ transform: rotate(-7deg)  translateY(6px);  z-index: 2; animation-delay: .13s; }
+  .hero-card:nth-child(3){ transform: rotate(0deg)   translateY(-8px) scale(1.07); z-index: 3; animation-delay: .21s;
+                           box-shadow: 0 30px 56px -22px rgba(74,48,98,.66); }
+  .hero-card:nth-child(4){ transform: rotate(7deg)   translateY(6px);  z-index: 2; animation-delay: .29s; }
+  .hero-card:nth-child(5){ transform: rotate(15deg)  translateY(20px); z-index: 1; animation-delay: .37s; }
+  /* hover: fan the deck open */
+  .hero-stage:hover .hero-card { margin: 0 4px; }
+  .hero-stage:hover .hero-card:nth-child(1){ transform: rotate(-8deg) translateY(8px); }
+  .hero-stage:hover .hero-card:nth-child(2){ transform: rotate(-4deg) translateY(0); }
+  .hero-stage:hover .hero-card:nth-child(3){ transform: rotate(0deg)  translateY(-12px) scale(1.09); }
+  .hero-stage:hover .hero-card:nth-child(4){ transform: rotate(4deg)  translateY(0); }
+  .hero-stage:hover .hero-card:nth-child(5){ transform: rotate(8deg)  translateY(8px); }
+  .hero-caption { margin: 26px auto 0; font-size: 12.5px; color: var(--faint); }
+  @media (max-width: 560px) {
+    .hero-stage { margin-top: 48px; min-height: 132px; }
+    .hero-card { width: 88px; height: 112px; border-radius: 15px; margin: 0 -12px; }
+    .hero-stage:hover .hero-card { margin: 0 1px; }
+  }
+
+  /* ============================ APP / DEMO ============================ */
+  .app-shell {
+    margin: 22px auto 0; border-radius: 26px; overflow: hidden;
+    background: var(--panel-solid); border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+  }
+  .app-bar {
+    display: flex; align-items: center; gap: 12px;
+    padding: 13px 18px; border-bottom: 1px solid var(--border); background: var(--panel);
+    backdrop-filter: blur(12px);
+  }
+  .traffic { display: flex; gap: 7px; flex: none; }
+  .traffic i { width: 11px; height: 11px; border-radius: 50%; background: var(--border-strong); }
+  .traffic i:nth-child(1){background:#ff5f57} .traffic i:nth-child(2){background:#febc2e} .traffic i:nth-child(3){background:#28c840}
+  .app-title { font-size: 12.5px; color: var(--muted); font-family: var(--mono); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ---- Toolbar: own row, semantic groups, reflows cleanly ---- */
+  .toolbar {
+    display: flex; align-items: flex-end; gap: 14px 18px; flex-wrap: wrap;
+    padding: 14px 18px; border-bottom: 1px solid var(--border);
+  }
+  .tool-sliders { display: flex; gap: 18px; flex: 1 1 300px; min-width: 0; }
+  .tool-fit { flex: none; }
+  .tool-actions { display: flex; gap: 9px; margin-left: auto; flex: none; }
+  .slider { display: flex; flex-direction: column; gap: 4px; flex: 1 1 0; min-width: 0; }
+  .slider .top { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; font-size: 11px; color: var(--muted); }
+  .slider .top b { font-family: var(--mono); color: var(--text); font-weight: 500; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 22px; border-radius: 99px;
+    background: transparent; outline: none; cursor: pointer; margin: 0; touch-action: none;
+  }
+  /* visible track via gradient on the runnable track */
+  input[type="range"]::-webkit-slider-runnable-track { height: 5px; border-radius: 99px; background: var(--border-strong); }
+  input[type="range"]::-moz-range-track { height: 5px; border-radius: 99px; background: var(--border-strong); }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 17px; height: 17px; margin-top: -6px; border-radius: 50%;
+    background: var(--accent); border: 3px solid var(--panel-solid); cursor: grab;
+    box-shadow: 0 0 0 1px var(--border-strong), 0 2px 6px rgba(74,48,98,.3); transition: transform .15s var(--spring);
+  }
+  input[type="range"]::-webkit-slider-thumb:active { transform: scale(1.22); cursor: grabbing; }
+  input[type="range"]::-moz-range-thumb { width: 17px; height: 17px; border-radius: 50%; background: var(--accent); border: 3px solid var(--panel-solid); box-shadow: 0 0 0 1px var(--border-strong); }
+  input[type="range"]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(115,77,152,.3); }
+
+  .seg { display: inline-flex; padding: 3px; gap: 3px; border: 1px solid var(--border); background: var(--elevated); border-radius: var(--r-sm); }
+  .seg button { border: 0; background: transparent; color: var(--muted); font-weight: 600; font-size: 12.5px; padding: 8px 14px; border-radius: 6px; cursor: pointer; transition: .18s var(--ease); font-family: inherit; }
+  .seg button:hover { color: var(--text); }
+  .seg button.active { background: linear-gradient(180deg, var(--accent-2), var(--accent)); color: #fff; box-shadow: 0 4px 12px -4px rgba(115,77,152,.45); }
+
+  /* Remove-BG toggle */
+  .tool-toggle { flex: none; }
+  .toggle {
+    display: inline-flex; align-items: center; gap: 8px; font-family: inherit;
+    border: 1px solid var(--border); background: var(--elevated); color: var(--muted);
+    border-radius: var(--r-sm); padding: 8px 13px; cursor: pointer; font-size: 12.5px; font-weight: 600;
+    transition: .18s var(--ease); white-space: nowrap;
+  }
+  .toggle:hover { border-color: var(--border-strong); }
+  .toggle .toggle-check {
+    width: 16px; height: 16px; border-radius: 5px; display: grid; place-items: center; flex: none;
+    border: 1px solid var(--border-strong); font-size: 10px; color: transparent; transition: .15s var(--ease);
+  }
+  .toggle.active { color: var(--text); border-color: transparent; background: linear-gradient(180deg, rgba(160,111,201,.18), rgba(115,77,152,.13)); }
+  .toggle.active .toggle-check { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* Add-a-color bar */
+  .addbar {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin: 0 2px 16px; padding: 11px 13px; border-radius: var(--r-md);
+    background: var(--panel); border: 1px solid var(--border);
+  }
+  .addbar-label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+  .color-field {
+    display: inline-flex; align-items: center; gap: 7px; padding: 4px 8px 4px 5px;
+    background: var(--elevated); border: 1px solid var(--border); border-radius: var(--r-sm);
+  }
+  .color-field input[type="color"] { width: 26px; height: 26px; padding: 0; border: none; background: none; cursor: pointer; border-radius: 6px; }
+  .color-field input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+  .color-field input[type="color"]::-webkit-color-swatch { border: 1px solid var(--border-strong); border-radius: 6px; }
+  .color-field input[type="color"]::-moz-color-swatch { border: 1px solid var(--border-strong); border-radius: 6px; }
+  .color-field input[type="text"] {
+    width: 82px; border: none; background: none; outline: none; color: var(--text);
+    font-family: var(--mono); font-size: 13px; text-transform: uppercase; letter-spacing: .02em;
+  }
+  .color-field.err { border-color: #dc2626; }
+  .color-field.err input[type="text"] { color: #dc2626; }
+  .btn.sm { padding: 8px 13px; font-size: 12.5px; }
+
+  /* Custom tile remove button */
+  .tile-remove {
+    position: absolute; top: 8px; right: 8px; z-index: 3;
+    width: 24px; height: 24px; border-radius: 7px; border: 1px solid rgba(120,120,120,.32);
+    background: rgba(255,255,255,.85); color: #333; cursor: pointer; font-size: 11px; line-height: 1;
+    display: grid; place-items: center; backdrop-filter: blur(6px); transition: .15s var(--ease);
+  }
+  .tile-remove:hover { background: #fff; border-color: rgba(120,120,120,.55); transform: scale(1.08); }
+
+  .app-body { padding: 20px; }
+  .dropzone {
+    position: relative; border-radius: var(--r-xl); cursor: pointer; overflow: hidden;
+    padding: 26px; margin-bottom: 14px; text-align: center;
+    background: var(--panel); border: 1px solid var(--border); transition: .22s var(--ease);
+  }
+  .dropzone::after {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px;
+    background: linear-gradient(120deg, transparent, transparent);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0; transition: .22s var(--ease);
+  }
+  .dropzone.drag { transform: scale(1.004); border-color: transparent; }
+  .dropzone.drag::after { background: linear-gradient(120deg, var(--accent), var(--accent-2)); opacity: 1; }
+  .dz-icon { width: 44px; height: 44px; margin: 0 auto 11px; border-radius: 13px; display: grid; place-items: center; background: var(--elevated); border: 1px solid var(--border); color: var(--accent); }
+  .dz-icon svg { width: 21px; height: 21px; }
+  .dropzone h3 { margin: 0 0 4px; font-size: 17px; letter-spacing: -.02em; }
+  .dropzone p { margin: 0; color: var(--muted); font-size: 13px; }
+  .hint { margin-top: 9px !important; font-size: 11.5px !important; color: var(--faint) !important; font-family: var(--mono); }
+
+  .statusbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--muted); font-size: 12.5px; margin: 0 2px 16px; }
+  .pill { font-family: var(--mono); font-size: 11px; padding: 3px 9px; border-radius: 99px; background: var(--elevated); border: 1px solid var(--border); color: var(--text); }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+  .tile {
+    border-radius: var(--r-lg); overflow: hidden; cursor: zoom-in; position: relative;
+    background: var(--panel-solid); border: 1px solid var(--border); box-shadow: var(--tile-shadow);
+    transition: transform .26s var(--spring), box-shadow .26s var(--ease), border-color .2s;
+    opacity: 0; transform: translateY(14px) scale(.97); animation: pop .5s var(--spring) forwards;
+  }
+  @keyframes pop { to { opacity: 1; transform: none; } }
+  .tile:hover { transform: translateY(-5px); border-color: var(--border-strong); box-shadow: 0 28px 56px -20px rgba(0,0,0,.6); }
+  .stage { aspect-ratio: 4 / 3; display: grid; place-items: center; position: relative; overflow: hidden; }
+  .stage::after { content: ""; position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 60px rgba(0,0,0,.06); }
+  .stage img, .stage .logo-svg { width: auto; height: auto; object-fit: contain; pointer-events: none; transition: transform .28s var(--spring); filter: drop-shadow(0 1px 1px rgba(0,0,0,.04)); }
+  .label { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; background: var(--panel-solid); border-top: 1px solid var(--border); }
+  .label .name { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 12px; letter-spacing: -.01em; }
+  .label .tag { color: var(--faint); font-size: 10px; font-family: var(--mono); white-space: nowrap; }
+  .swatch { width: 12px; height: 12px; border-radius: 4px; box-shadow: inset 0 0 0 1px rgba(125,125,125,.35); flex: none; }
+  .idx { position: absolute; top: 8px; left: 9px; font-family: var(--mono); font-size: 9.5px; color: rgba(125,125,125,.75); background: rgba(125,125,125,.12); border-radius: 6px; padding: 2px 6px; backdrop-filter: blur(6px); }
+
+  /* ============================ SECTIONS ============================ */
+  section { padding: 70px 0; }
+  .section-head { text-align: center; max-width: 60ch; margin: 0 auto 44px; }
+  .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .12em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  .section-head h2 { font-size: clamp(26px, 4vw, 38px); letter-spacing: -.03em; margin: 0 0 12px; line-height: 1.1; }
+  .section-head p { color: var(--muted); font-size: 16px; margin: 0; line-height: 1.55; }
+
+  .features { display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(180px, auto); gap: 16px; }
+  .feature {
+    display: flex; flex-direction: column;
+    padding: 26px; border-radius: var(--r-xl); background: var(--panel); border: 1px solid var(--border);
+    transition: .22s var(--ease);
+  }
+  /* bento spans: 1 = tall hero (2x2), 2/5/6 = wide (2x1), 3/4 = standard */
+  .feature:nth-child(1) { grid-column: span 2; grid-row: span 2; background: linear-gradient(165deg, var(--panel), rgba(115,77,152,.08)); }
+  .feature:nth-child(2) { grid-column: span 2; }
+  .feature:nth-child(5) { grid-column: span 2; }
+  .feature:nth-child(6) { grid-column: span 2; }
+  .feature:nth-child(1) .fi { width: 54px; height: 54px; border-radius: 16px; margin-bottom: auto; }
+  .feature:nth-child(1) .fi svg { width: 26px; height: 26px; }
+  .feature:nth-child(1) h3 { margin-top: 22px; font-size: 24px; }
+  .feature:nth-child(1) p { font-size: 15px; max-width: 42ch; }
+  .feature:hover { transform: translateY(-4px); border-color: var(--border-strong); }
+  .feature .fi { width: 44px; height: 44px; border-radius: 13px; display: grid; place-items: center; margin-bottom: 16px;
+    background: linear-gradient(160deg, rgba(115,77,152,.2), rgba(160,111,201,.12)); color: var(--accent); border: 1px solid var(--border); }
+  .feature .fi svg { width: 22px; height: 22px; }
+  .feature h3 { margin: 0 0 7px; font-size: 17px; letter-spacing: -.02em; }
+  .feature p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+  .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; text-align: center; }
+  .stat { padding: 28px 18px; border-radius: var(--r-xl); background: var(--panel); border: 1px solid var(--border); }
+  .stat .n { font-size: 40px; font-weight: 800; letter-spacing: -.03em; line-height: 1;
+    background: linear-gradient(120deg, var(--accent), var(--accent-2)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat .l { margin-top: 8px; color: var(--muted); font-size: 13px; }
+
+  .cta-band {
+    text-align: center; padding: 60px 28px; border-radius: 26px; position: relative; overflow: hidden;
+    background: linear-gradient(135deg, rgba(115,77,152,.16), rgba(160,111,201,.12));
+    border: 1px solid var(--border);
+  }
+  .cta-band h2 { font-size: clamp(26px, 4vw, 40px); letter-spacing: -.03em; margin: 0 0 12px; }
+  .cta-band p { color: var(--muted); font-size: 16px; margin: 0 auto 26px; max-width: 50ch; }
+
+  footer { border-top: 1px solid var(--border); padding: 36px 0; margin-top: 30px; }
+  .foot-in { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; color: var(--faint); font-size: 12.5px; }
+  .foot-in .brand b { font-size: 14px; }
+  .foot-in .byline a { color: var(--accent); font-weight: 600; }
+  .foot-in .byline a:hover { text-decoration: underline; }
+  .foot-in .spacer { margin-left: auto; }
+
+  /* ============================ LIGHTBOX ============================ */
+  .lightbox { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 36px; background: rgba(4,5,9,.72); backdrop-filter: blur(10px); opacity: 0; transition: opacity .2s; }
+  .lightbox.open { display: flex; opacity: 1; }
+  .lightbox .frame { width: min(940px, 92vw); height: min(640px, 80vh); border-radius: var(--r-xl); overflow: hidden; position: relative; display: grid; place-items: center; box-shadow: var(--shadow); border: 1px solid var(--border-strong); transform: scale(.92); transition: transform .35s var(--spring); }
+  .lightbox.open .frame { transform: scale(1); }
+  .lightbox .frame img, .lightbox .frame .logo-svg { width: auto; height: auto; }
+  .lightbox .meta { position: absolute; left: 16px; bottom: 16px; right: 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 10px 14px; border-radius: var(--r-md); font-size: 12.5px; background: rgba(10,12,18,.6); color: #fff; border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(14px); }
+  .lightbox .meta .tag { font-family: var(--mono); opacity: .75; font-size: 11px; }
+  .lb-top { position: absolute; top: 16px; right: 16px; z-index: 2; }
+  .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); width: 44px; height: 44px; border-radius: 50%; font-size: 20px; z-index: 2; background: rgba(10,12,18,.5); border: 1px solid rgba(255,255,255,.14); color: #fff; display: grid; place-items: center; cursor: pointer; backdrop-filter: blur(10px); transition: .18s var(--ease); }
+  .nav-btn:hover { background: rgba(10,12,18,.85); transform: translateY(-50%) scale(1.08); }
+  .nav-btn.prev { left: 16px; } .nav-btn.next { right: 16px; }
+
+  /* Tablet: actions drop to their own full row */
+  @media (max-width: 720px) {
+    .nav-links { display: none; }
+    .toolbar { align-items: stretch; }
+    .tool-sliders { flex: 1 1 100%; }
+    .tool-actions { margin-left: 0; flex: 1 1 100%; }
+    .tool-actions .btn { flex: 1; justify-content: center; }
+    .tool-fit { flex: 1 1 auto; }
+    .tool-fit .seg { display: flex; width: 100%; }
+    .tool-fit .seg button { flex: 1; }
+    /* bento collapses to 2 columns; hero stays wide but no longer double-height */
+    .features { grid-template-columns: 1fr 1fr; grid-auto-rows: minmax(160px, auto); }
+    .feature:nth-child(1) { grid-row: span 1; }
+    .feature:nth-child(1) .fi { margin-bottom: 16px; }
+    .feature:nth-child(1) h3 { margin-top: 0; font-size: 19px; }
+  }
+  /* Phone: stack everything, full-width touch targets */
+  @media (max-width: 480px) {
+    .app-body { padding: 16px; }
+    .toolbar { padding: 14px 16px; gap: 12px; }
+    .tool-sliders { flex-direction: column; gap: 14px; }
+    .slider { flex: 1 1 100%; }
+    .seg button, .btn { padding-top: 11px; padding-bottom: 11px; font-size: 14px; }
+    .grid { grid-template-columns: 1fr 1fr; gap: 12px; }
+    .idx { font-size: 9px; }
+    .label { padding: 9px 11px; }
+    .label .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .label .tag { display: none; }
+    .features { grid-template-columns: 1fr; }
+    .feature:nth-child(1), .feature:nth-child(2), .feature:nth-child(5), .feature:nth-child(6) { grid-column: span 1; }
+    .addbar-label { flex-basis: 100%; }
+    .color-field { flex: 1; }
+    .color-field input[type="text"] { width: 100%; }
+    #add-color { flex: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+
+<!-- ===================== NAV ===================== -->
+<nav>
+  <div class="wrap nav-in">
+    <a class="brand" href="#top"><span class="mark"><i></i><i></i><i></i><i></i></span><b>LogoGrid</b></a>
+    <div class="nav-links">
+      <a href="#demo">Demo</a>
+      <a href="#features">Features</a>
+      <a href="#scenarios">Scenarios</a>
+    </div>
+    <div class="nav-cta">
+      <button class="icon-btn" id="theme-btn" title="Toggle theme">☀️</button>
+      <a class="btn primary" href="#demo">Try it free</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ===================== HERO ===================== -->
+<header id="top">
+  <div class="wrap hero">
+    <div class="badge"><span class="dot"></span>100% in your browser · <b>nothing uploaded</b></div>
+    <h1>Will your logo survive <span class="grad">the real world?</span></h1>
+    <p class="lede">Designers approve logos on a clean white artboard. Then it ships onto a dark hero, a busy photo, a yellow ad, a 50% gray button. LogoGrid drops your logo onto <b>20 real backgrounds at once</b>, so you catch the failures before your customers do.</p>
+    <div class="hero-cta">
+      <a class="btn primary lg js-test" href="#demo">Test my logo →</a>
+      <a class="btn lg" href="#scenarios">See the 20 scenarios</a>
+    </div>
+    <div class="hero-meta">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> No sign-up</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> Free forever</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> PNG &amp; SVG</span>
+    </div>
+
+    <div class="hero-stage" id="hero-stage" aria-hidden="true"></div>
+    <p class="hero-caption">One logo. Every background. Hover to fan them out.</p>
+  </div>
+</header>
+
+<!-- ===================== APP / LIVE DEMO ===================== -->
+<div class="wrap" id="demo">
+  <div class="app-shell">
+    <div class="app-bar">
+      <div class="traffic"><i></i><i></i><i></i></div>
+      <span class="app-title">logogrid · live preview</span>
+    </div>
+
+    <div class="toolbar">
+      <div class="tool-sliders">
+        <div class="slider">
+          <div class="top"><span>Size</span><b id="size-v">62%</b></div>
+          <input id="size" type="range" min="20" max="95" value="62" aria-label="Logo size" />
+        </div>
+        <div class="slider">
+          <div class="top"><span>Padding</span><b id="pad-v">0px</b></div>
+          <input id="pad" type="range" min="0" max="48" value="0" aria-label="Logo padding" />
+        </div>
+      </div>
+
+      <div class="tool-fit">
+        <div class="seg" id="fit" role="tablist" aria-label="Fit mode">
+          <button data-fit="contain" class="active">Contain</button>
+          <button data-fit="cover">Cover</button>
+        </div>
+      </div>
+
+      <div class="tool-toggle">
+        <button class="toggle active" id="rmbg-toggle" role="switch" aria-checked="true" title="Automatically knock out the logo's background so it sits cleanly on every color">
+          <span class="toggle-check">✓</span> Remove BG
+        </button>
+      </div>
+
+      <div class="tool-actions">
+        <button class="btn primary" id="upload-btn">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg>
+          Upload
+        </button>
+        <button class="btn" id="reset-btn" title="Restore the demo logo">Demo</button>
+      </div>
+    </div>
+
+    <div class="app-body">
+      <div class="dropzone" id="dropzone">
+        <div class="dz-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="9" cy="9" r="1.6"/></svg></div>
+        <h3>Drop your logo here</h3>
+        <p>Transparent PNG or SVG works best, or click to browse</p>
+        <p class="hint" id="filehint"></p>
+        <input type="file" id="file" accept="image/png,image/svg+xml,image/jpeg,image/webp" hidden />
+      </div>
+      <div class="statusbar" id="statusbar">
+        <span class="pill">demo logo</span>
+        <span id="statustext">Live preview across light, dark, brand, gradient &amp; photographic backgrounds. Click any tile to zoom. Arrow keys to browse.</span>
+      </div>
+
+      <div class="addbar">
+        <span class="addbar-label">Test on one color</span>
+        <div class="color-field">
+          <input type="color" id="color-pick" value="#734d98" aria-label="Pick a color" />
+          <input type="text" id="hex-input" value="#734D98" maxlength="7" spellcheck="false" aria-label="Hex color code" />
+        </div>
+        <button class="btn primary sm" id="add-color">Generate 20 variants</button>
+        <button class="btn sm" id="clear-colors" hidden>Reset scenarios</button>
+      </div>
+
+      <div class="grid" id="grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== STATS ===================== -->
+<section>
+  <div class="wrap stats">
+    <div class="stat"><div class="n">20</div><div class="l">background scenarios</div></div>
+    <div class="stat"><div class="n">0s</div><div class="l">to first preview</div></div>
+    <div class="stat"><div class="n">100%</div><div class="l">private &amp; local</div></div>
+    <div class="stat"><div class="n">$0</div><div class="l">forever</div></div>
+  </div>
+</section>
+
+<!-- ===================== FEATURES ===================== -->
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">Why LogoGrid</div>
+      <h2>The contrast checks your artboard hides</h2>
+      <p>A logo that looks perfect on white can vanish on gray, glow weirdly on a gradient, or get lost in a photo. See every case in one glance.</p>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18z"/></svg></div>
+        <h3>Light & dark, side by side</h3>
+        <p>White, off-white, charcoal, true black. Confirm your mark reads in both modes without rebuilding a mockup.</p>
+      </div>
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="9"/></svg></div>
+        <h3>The 50% gray trap</h3>
+        <p>Mid-gray is where most logos die: too dark for the light version, too light for the dark one. We put it front and center.</p>
+      </div>
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M3 15l5-5 4 4 3-3 6 6"/><circle cx="9" cy="9" r="1.6"/></svg></div>
+        <h3>Busy photo backgrounds</h3>
+        <p>Concrete and foliage textures reveal whether your logo needs a plate, a shadow, or a knockout to stay legible over imagery.</p>
+      </div>
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 18 4M8 4h10v10"/></svg></div>
+        <h3>Tune size & padding live</h3>
+        <p>Drag the sliders and every tile updates instantly. Find the clear-space that keeps the mark breathing on each surface.</p>
+      </div>
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+        <h3>Never leaves your machine</h3>
+        <p>No accounts, no uploads, no servers. Your unreleased brand stays on your device. Read the source if you like.</p>
+      </div>
+      <div class="feature">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg></div>
+        <h3>Instant, zero setup</h3>
+        <p>One HTML file. Open it, drop a logo, done. Works offline once loaded. Keep it in your toolkit forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SCENARIOS ===================== -->
+<section id="scenarios">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">The lineup</div>
+      <h2>20 scenarios, every release</h2>
+      <p>From the boardroom-safe to the deliberately brutal. Scroll the demo above to see your own logo on each.</p>
+    </div>
+    <div class="grid" id="scen-list"></div>
+  </div>
+</section>
+
+<!-- ===================== CTA BAND ===================== -->
+<section>
+  <div class="wrap">
+    <div class="cta-band">
+      <h2>Drop your logo. Catch the problems.</h2>
+      <p>It takes about three seconds and you'll never approve a logo on a plain white square again.</p>
+      <a class="btn primary lg js-test" href="#demo">Test my logo now →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer>
+  <div class="wrap foot-in">
+    <a class="brand" href="#top"><span class="mark"><i></i><i></i><i></i><i></i></span><b>LogoGrid</b></a>
+    <span>· 20-background stress test for logos</span>
+    <span class="byline">A tool by <a href="https://prompts2products.com" target="_blank" rel="noopener">Prompts2Products</a></span>
+    <span class="spacer">Runs 100% locally. Your logo never leaves your browser.</span>
+  </div>
+</footer>
+
+<!-- ===================== LIGHTBOX ===================== -->
+<div class="lightbox" id="lightbox">
+  <div class="lb-top"><button class="icon-btn" id="lb-close" style="color:#fff;background:rgba(10,12,18,.5);border-color:rgba(255,255,255,.14)">✕</button></div>
+  <button class="nav-btn prev" id="lb-prev">‹</button>
+  <button class="nav-btn next" id="lb-next">›</button>
+  <div class="frame" id="lb-frame"><div class="meta"><span id="lb-name"></span><span class="tag" id="lb-tag"></span></div></div>
+</div>
+
+<script>
+/* ---------------- 20 background scenarios ---------------- */
+const SCENARIOS = [
+  { name: "Pure white",   tag: "print · light UI", css: "#ffffff", sw: "#ffffff" },
+  { name: "Off-white",    tag: "paper",            css: "#f4f1ea", sw: "#f4f1ea" },
+  { name: "Light gray",   tag: "app surface",      css: "#e9ecef", sw: "#e9ecef" },
+  { name: "Mid gray 50%", tag: "worst-case",       css: "#808080", sw: "#808080" },
+  { name: "Charcoal",     tag: "dark UI",          css: "#1d1f24", sw: "#1d1f24" },
+  { name: "True black",   tag: "OLED · print",     css: "#000000", sw: "#000000" },
+  { name: "Brand blue",   tag: "tech",             css: "#2563eb", sw: "#2563eb" },
+  { name: "Brand red",    tag: "bold · alert",     css: "#dc2626", sw: "#dc2626" },
+  { name: "Brand green",  tag: "finance · eco",    css: "#16a34a", sw: "#16a34a" },
+  { name: "Brand purple", tag: "creative",         css: "#7c3aed", sw: "#7c3aed" },
+  { name: "Sunny yellow", tag: "high-vis",         css: "#facc15", sw: "#facc15" },
+  { name: "Hot pink",     tag: "playful",          css: "#ec4899", sw: "#ec4899" },
+  { name: "Teal",         tag: "wellness",         css: "#0d9488", sw: "#0d9488" },
+  { name: "Navy",         tag: "corporate",        css: "#0f172a", sw: "#0f172a" },
+  { name: "Sunset",       tag: "marketing",        css: "linear-gradient(135deg,#ff7e5f,#feb47b 55%,#ff5f9e)", sw: "#ff7e5f" },
+  { name: "Ocean",        tag: "hero banner",      css: "linear-gradient(135deg,#1fa2ff,#12d8fa 50%,#a6ffcb)", sw: "#1fa2ff" },
+  { name: "Aurora",       tag: "splash screen",    css: "linear-gradient(135deg,#7c3aed,#4f46e5 45%,#06b6d4)", sw: "#7c3aed" },
+  { name: "Checkerboard", tag: "transparency",     css: "conic-gradient(#cfcfcf 90deg,#ffffff 0 180deg,#cfcfcf 0 270deg,#ffffff 0) 0 0/24px 24px", sw: "#cfcfcf" },
+  { name: "Concrete",     tag: "real surface",     css: "radial-gradient(120% 120% at 30% 20%, #8a8f98, #5c6068 60%, #3c3f45), repeating-linear-gradient(45deg, rgba(255,255,255,.04) 0 8px, rgba(0,0,0,.05) 8px 16px)", sw: "#5c6068" },
+  { name: "Foliage",      tag: "busy photo",       css: "radial-gradient(80% 80% at 70% 30%, #6aa84f, #38761d 60%, #1e3d12), repeating-linear-gradient(120deg, rgba(0,0,0,.18) 0 6px, rgba(255,255,255,.06) 6px 13px)", sw: "#38761d" },
+];
+
+const DEMO_LOGO = `<svg class="logo-svg" viewBox="0 0 210 210" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Prompts2Products logo">
+  <defs>
+    <linearGradient id="p2p" x1="0.1" y1="0" x2="0.9" y2="1">
+      <stop offset="0" stop-color="#9d5fbf"/>
+      <stop offset=".55" stop-color="#7a479f"/>
+      <stop offset="1" stop-color="#5d3784"/>
+    </linearGradient>
+    <linearGradient id="p2pGloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".40"/>
+      <stop offset=".5" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <g fill="url(#p2p)">
+    <rect x="40" y="40" width="58" height="72" rx="13"/>
+    <path d="M116 40 H136 A34 34 0 0 1 170 74 V78 A34 34 0 0 1 136 112 H116 A13 13 0 0 1 104 99 V53 A13 13 0 0 1 116 40 Z"/>
+    <path d="M52 120 H86 A13 13 0 0 1 98 133 V152 A24 24 0 0 1 74 176 H64 A24 24 0 0 1 40 152 V133 A13 13 0 0 1 52 120 Z"/>
+  </g>
+  <g fill="url(#p2pGloss)">
+    <rect x="40" y="40" width="58" height="72" rx="13"/>
+    <path d="M116 40 H136 A34 34 0 0 1 170 74 V78 A34 34 0 0 1 136 112 H116 A13 13 0 0 1 104 99 V53 A13 13 0 0 1 116 40 Z"/>
+    <path d="M52 120 H86 A13 13 0 0 1 98 133 V152 A24 24 0 0 1 74 176 H64 A24 24 0 0 1 40 152 V133 A13 13 0 0 1 52 120 Z"/>
+  </g>
+</svg>`;
+
+const state = { src: null, rawSrc: null, removeBg: true, size: 62, pad: 0, fit: "contain", current: 0 };
+let variantList = null;                       // null = default 20 scenarios; array = generated color variants
+let logoLabel = "demo logo";
+const getScenarios = () => variantList || SCENARIOS;
+const grid = document.getElementById("grid");
+
+const logoMarkup = () => state.src ? `<img src="${state.src}" alt="logo" draggable="false" />` : DEMO_LOGO;
+
+function applyLogoStyle(scope) {
+  const node = scope.querySelector("img, .logo-svg"); if (!node) return;
+  if (state.fit === "cover") {
+    node.style.width = "100%"; node.style.height = "100%"; node.style.objectFit = "cover";
+    node.style.maxWidth = "none"; node.style.maxHeight = "none"; node.style.transform = `scale(${(state.size/62)*1.04})`;
+  } else {
+    node.style.width = "auto"; node.style.height = "auto"; node.style.objectFit = "contain";
+    node.style.maxWidth = state.size + "%"; node.style.maxHeight = state.size + "%"; node.style.transform = "none";
+  }
+}
+function textColor(sw) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(sw); if (!m) return "#111";
+  const n = parseInt(m[1],16), r=(n>>16)&255, g=(n>>8)&255, b=n&255;
+  return (0.2126*r+0.7152*g+0.0722*b)/255 > 0.55 ? "#11131a" : "#ffffff";
+}
+
+function render() {
+  grid.innerHTML = "";
+  getScenarios().forEach((s, i) => {
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.style.animationDelay = (Math.min(i, 21) * 26) + "ms";
+    tile.innerHTML = `
+      <div class="stage" style="background:${s.css}; padding:${state.pad}px; color:${textColor(s.sw)}">
+        <span class="idx">${String(i+1).padStart(2,"0")}</span>${logoMarkup()}
+      </div>
+      <div class="label">
+        <span class="name"><span class="swatch" style="background:${s.sw}"></span>${s.name}</span>
+        <span class="tag">${s.tag}</span>
+      </div>`;
+    applyLogoStyle(tile.querySelector(".stage"));
+    tile.addEventListener("click", () => openLightbox(i));
+    grid.appendChild(tile);
+  });
+}
+
+/* scenarios showcase list (static, no logo, just the surfaces) */
+(function buildScenList(){
+  const el = document.getElementById("scen-list");
+  SCENARIOS.forEach((s,i) => {
+    const t = document.createElement("div");
+    t.className = "tile"; t.style.cursor = "default"; t.style.animationDelay = (i*22)+"ms";
+    t.innerHTML = `<div class="stage" style="background:${s.css}"><span class="idx">${String(i+1).padStart(2,"0")}</span></div>
+      <div class="label"><span class="name"><span class="swatch" style="background:${s.sw}"></span>${s.name}</span><span class="tag">${s.tag}</span></div>`;
+    el.appendChild(t);
+  });
+})();
+
+/* Hero showcase: the demo logo fanned across 5 contrasting backgrounds */
+(function buildHeroStage(){
+  const el = document.getElementById("hero-stage"); if (!el) return;
+  const backdrops = [
+    "#ffffff",
+    "linear-gradient(135deg,#1fa2ff,#12d8fa 50%,#a6ffcb)",
+    "#1d1f24",
+    "linear-gradient(135deg,#ff7e5f,#feb47b 55%,#ff5f9e)",
+    "#e9ecef"
+  ];
+  backdrops.forEach(bg => {
+    const card = document.createElement("div");
+    card.className = "hero-card";
+    card.style.background = bg;
+    card.innerHTML = DEMO_LOGO;
+    el.appendChild(card);
+  });
+})();
+
+/* ---------------- Lightbox ---------------- */
+const lb = document.getElementById("lightbox"), lbFrame = document.getElementById("lb-frame");
+function openLightbox(i) {
+  const list = getScenarios();
+  state.current = i; const s = list[i];
+  lbFrame.style.background = s.css; lbFrame.style.color = textColor(s.sw);
+  lbFrame.querySelectorAll("img, .logo-svg").forEach(n => n.remove());
+  lbFrame.insertAdjacentHTML("afterbegin", logoMarkup()); applyLogoStyle(lbFrame);
+  document.getElementById("lb-name").textContent = s.name;
+  document.getElementById("lb-tag").textContent = s.tag;
+  lb.classList.add("open");
+}
+const step = d => { const len = getScenarios().length; openLightbox((state.current + d + len) % len); };
+document.getElementById("lb-close").onclick = () => lb.classList.remove("open");
+document.getElementById("lb-prev").onclick = e => { e.stopPropagation(); step(-1); };
+document.getElementById("lb-next").onclick = e => { e.stopPropagation(); step(1); };
+lb.addEventListener("click", e => { if (e.target === lb) lb.classList.remove("open"); });
+document.addEventListener("keydown", e => {
+  if (!lb.classList.contains("open")) return;
+  if (e.key === "Escape") lb.classList.remove("open");
+  if (e.key === "ArrowLeft") step(-1);
+  if (e.key === "ArrowRight") step(1);
+});
+
+/* ---------------- Controls ---------------- */
+const sizeEl = document.getElementById("size"), padEl = document.getElementById("pad");
+const sizeV = document.getElementById("size-v"), padV = document.getElementById("pad-v");
+sizeEl.oninput = () => { state.size = +sizeEl.value; sizeV.textContent = sizeEl.value + "%"; render(); };
+padEl.oninput  = () => { state.pad  = +padEl.value;  padV.textContent  = padEl.value + "px"; render(); };
+document.querySelectorAll("#fit button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#fit button").forEach(x => x.classList.remove("active"));
+  b.classList.add("active"); state.fit = b.dataset.fit; render();
+});
+
+/* theme */
+const themeBtn = document.getElementById("theme-btn");
+themeBtn.onclick = () => {
+  const root = document.documentElement;
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+  root.setAttribute("data-theme", next);
+  themeBtn.textContent = next === "dark" ? "🌙" : "☀️";
+};
+
+/* ---------------- File handling ---------------- */
+const fileInput = document.getElementById("file"), dz = document.getElementById("dropzone");
+const statustext = document.getElementById("statustext");
+const statuspill = document.querySelector("#statusbar .pill");
+const fhint = document.getElementById("filehint");
+
+/* ---- Auto background knockout: flood-fill from the edges so we only remove the
+        contiguous backdrop and keep whites that are INSIDE the logo. ---- */
+function knockoutBg(dataUrl) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) return resolve(dataUrl);
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0);
+      let imgData; try { imgData = ctx.getImageData(0, 0, w, h); } catch (_) { return resolve(dataUrl); }
+      const px = imgData.data;
+      // Average the four corners as the presumed background color.
+      const corners = [[0,0],[w-1,0],[0,h-1],[w-1,h-1]];
+      let br = 0, bg = 0, bb = 0, opaque = 0;
+      corners.forEach(([x,y]) => { const k = (y*w + x)*4; if (px[k+3] < 8) return; br += px[k]; bg += px[k+1]; bb += px[k+2]; opaque++; });
+      if (!opaque) return resolve(dataUrl); // corners already transparent → nothing to strip
+      br /= opaque; bg /= opaque; bb /= opaque;
+      const TOL = 62, t2 = TOL*TOL*3;       // color tolerance (squared, ×3 channels)
+      const visited = new Uint8Array(w*h);
+      const stack = [];
+      for (let x = 0; x < w; x++) { stack.push(x); stack.push((h-1)*w + x); }
+      for (let y = 0; y < h; y++) { stack.push(y*w); stack.push(y*w + w-1); }
+      while (stack.length) {
+        const idx = stack.pop();
+        if (visited[idx]) continue; visited[idx] = 1;
+        const k = idx*4;
+        const dr = px[k]-br, dg = px[k+1]-bg, db = px[k+2]-bb;
+        if (dr*dr + dg*dg + db*db > t2) continue;  // hit the logo → stop spreading
+        px[k+3] = 0;                                // knock this pixel out
+        const x = idx % w, y = (idx / w) | 0;
+        if (x > 0)   stack.push(idx-1);
+        if (x < w-1) stack.push(idx+1);
+        if (y > 0)   stack.push(idx-w);
+        if (y < h-1) stack.push(idx+w);
+      }
+      ctx.putImageData(imgData, 0, 0);
+      resolve(c.toDataURL("image/png"));
+    };
+    img.onerror = () => resolve(dataUrl);
+    img.src = dataUrl;
+  });
+}
+
+async function applyUploadedSource() {
+  if (!state.rawSrc) { state.src = null; render(); return; }
+  state.src = state.removeBg ? await knockoutBg(state.rawSrc) : state.rawSrc;
+  render();
+}
+
+function loadFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith("image/")) { fhint.textContent = "✕ that doesn't look like an image"; return; }
+  const reader = new FileReader();
+  reader.onload = async e => {
+    state.rawSrc = e.target.result;
+    logoLabel = file.name.length > 22 ? file.name.slice(0,20)+"…" : file.name;
+    if (!variantList) statuspill.textContent = logoLabel;
+    statustext.textContent = "Testing your logo across every scenario. Click a tile to zoom. ← → to browse, Esc to close.";
+    fhint.textContent = `✓ ${file.name} · ${Math.round(file.size/1024)} KB`;
+    await applyUploadedSource();
+  };
+  reader.readAsDataURL(file);
+}
+
+/* Remove-BG toggle */
+const rmbgToggle = document.getElementById("rmbg-toggle");
+rmbgToggle.onclick = () => {
+  state.removeBg = !state.removeBg;
+  rmbgToggle.classList.toggle("active", state.removeBg);
+  rmbgToggle.setAttribute("aria-checked", String(state.removeBg));
+  if (state.rawSrc) applyUploadedSource();
+};
+
+/* ---------------- Single-color mode: 20 variants of one color ---------------- */
+const colorPick = document.getElementById("color-pick");
+const hexInput = document.getElementById("hex-input");
+const genBtn = document.getElementById("add-color");
+const resetScenBtn = document.getElementById("clear-colors");
+const colorField = document.querySelector(".color-field");
+const normHex = v => {
+  v = (v || "").trim(); if (v[0] !== "#") v = "#" + v;
+  return /^#[0-9a-fA-F]{6}$/.test(v) ? v.toUpperCase() : null;
+};
+
+/* hex <-> HSL helpers */
+function hexToHsl(hex) {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex); let r = 0, g = 0, b = 0;
+  if (m) { const n = parseInt(m[1], 16); r = (n>>16 & 255)/255; g = (n>>8 & 255)/255; b = (n & 255)/255; }
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b); let h = 0, s = 0, l = (mx+mn)/2;
+  if (mx !== mn) {
+    const d = mx - mn; s = l > 0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    h = mx === r ? (g-b)/d + (g<b?6:0) : mx === g ? (b-r)/d + 2 : (r-g)/d + 4; h /= 6;
+  }
+  return { h: h*360, s: s*100, l: l*100 };
+}
+function hslToHex(h, s, l) {
+  h = ((h%360)+360)%360; s = Math.max(0, Math.min(100, s))/100; l = Math.max(0, Math.min(100, l))/100;
+  const c = (1-Math.abs(2*l-1))*s, x = c*(1-Math.abs((h/60)%2-1)), m = l - c/2;
+  let r, g, b;
+  if (h<60) [r,g,b]=[c,x,0]; else if (h<120) [r,g,b]=[x,c,0]; else if (h<180) [r,g,b]=[0,c,x];
+  else if (h<240) [r,g,b]=[0,x,c]; else if (h<300) [r,g,b]=[x,0,c]; else [r,g,b]=[c,0,x];
+  const to = v => Math.round((v+m)*255).toString(16).padStart(2, "0");
+  return ("#"+to(r)+to(g)+to(b)).toUpperCase();
+}
+
+/* Build 20 variants of a single base color: base, tint/shade ladder, tones, gradients */
+function variantsFromHex(hex) {
+  const { h, s } = hexToHsl(hex); const base = hex.toUpperCase(); const v = [];
+  v.push({ name: base, tag: "base", css: base, sw: base });
+  [96,88,80,72,62,52,42,34,26,18,10].forEach(L => {
+    const c = hslToHex(h, s, L); v.push({ name: c, tag: L >= 50 ? "tint" : "shade", css: c, sw: c });
+  });
+  [[88, s*0.40],[62, s*0.55],[42, s*0.50],[24, s*0.45]].forEach(([L, S]) => {
+    const c = hslToHex(h, S, L); v.push({ name: c, tag: "tone", css: c, sw: c });
+  });
+  const g = (a, b) => `linear-gradient(135deg, ${a}, ${b})`;
+  v.push({ name: "Gradient", tag: "light→dark", css: g(hslToHex(h,s,70), hslToHex(h,s,38)), sw: hslToHex(h,s,50) });
+  v.push({ name: "Gradient", tag: "hue shift",  css: g(hslToHex(h, Math.min(100,s+8), 58), hslToHex((h+22)%360, s, 46)), sw: hslToHex(h,s,52) });
+  v.push({ name: "Gradient", tag: "deep",       css: g(hslToHex(h,s,30), hslToHex(h,s,9)), sw: hslToHex(h,s,20) });
+  v.push({ name: "Spotlight", tag: "radial",    css: `radial-gradient(120% 120% at 30% 25%, ${hslToHex(h,s,64)}, ${hslToHex(h,s,30)})`, sw: hslToHex(h,s,40) });
+  return v.slice(0, 20);
+}
+
+colorPick.oninput = () => { hexInput.value = colorPick.value.toUpperCase(); if (variantList) generateVariants(); };
+hexInput.oninput  = () => { const h = normHex(hexInput.value); if (h) colorPick.value = h.toLowerCase(); };
+
+function generateVariants() {
+  const h = normHex(hexInput.value);
+  if (!h) { colorField.classList.add("err"); setTimeout(() => colorField.classList.remove("err"), 700); return; }
+  variantList = variantsFromHex(h);
+  statuspill.textContent = h;
+  statustext.textContent = `20 variants of ${h} — tints, shades, tones & gradients. Click any tile to zoom.`;
+  resetScenBtn.hidden = false;
+  render();
+}
+genBtn.onclick = generateVariants;
+hexInput.addEventListener("keydown", e => { if (e.key === "Enter") generateVariants(); });
+resetScenBtn.onclick = () => {
+  variantList = null; resetScenBtn.hidden = true;
+  statuspill.textContent = logoLabel;
+  statustext.textContent = "Live preview across light, dark, brand, gradient & photographic backgrounds. Click any tile to zoom.";
+  render();
+};
+dz.onclick = () => fileInput.click();
+document.getElementById("upload-btn").onclick = () => fileInput.click();
+
+/* "Test my logo" CTAs: scroll to the demo, then open the file picker */
+document.querySelectorAll(".js-test").forEach(a => a.addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("demo").scrollIntoView({ behavior: "smooth", block: "start" });
+  setTimeout(() => fileInput.click(), 480);
+}));
+fileInput.onchange = () => loadFile(fileInput.files[0]);
+document.getElementById("reset-btn").onclick = () => {
+  state.src = null; state.rawSrc = null; logoLabel = "demo logo";
+  if (!variantList) statuspill.textContent = "demo logo";
+  fhint.textContent = ""; render();
+};
+["dragenter","dragover"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.add("drag"); }));
+["dragleave","drop"].forEach(ev => dz.addEventListener(ev, e => { e.preventDefault(); dz.classList.remove("drag"); }));
+dz.addEventListener("drop", e => loadFile(e.dataTransfer.files[0]));
+window.addEventListener("dragover", e => e.preventDefault());
+window.addEventListener("drop", e => { e.preventDefault(); if (e.target.closest(".dropzone")) return; loadFile(e.dataTransfer.files[0]); });
+
+render();
+
+/* ---------------- Analytics loader (only fires if you set IDs in <head>) ---------------- */
+(function(){
+  var cfg = window.LOGOGRID_ANALYTICS || {};
+  if (cfg.ga4 && /^G-/.test(cfg.ga4)) {
+    var s = document.createElement("script"); s.async = true;
+    s.src = "https://www.googletagmanager.com/gtag/js?id=" + cfg.ga4;
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ dataLayer.push(arguments); };
+    gtag("js", new Date()); gtag("config", cfg.ga4);
+  }
+  if (cfg.clarity) {
+    (function(c,l,a,r,i,t,y){ c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+      t=l.createElement(r); t.async=1; t.src="https://www.clarity.ms/tag/"+i;
+      y=l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", cfg.clarity);
+  }
+})();
+</script>
+</body>
+</html>
