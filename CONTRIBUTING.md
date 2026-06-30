@@ -1,6 +1,6 @@
 # Contributing to LogoGrid
 
-First off — **thank you!** 💜 LogoGrid is a community tool, and contributions of every size are welcome: new background scenarios, bug fixes, accessibility improvements, performance tweaks, docs, translations, or just good ideas.
+First off, **thank you!** 💜 LogoGrid is a community tool, and contributions of every size are welcome: new background scenarios, bug fixes, accessibility improvements, performance tweaks, docs, translations, or just good ideas.
 
 ## Code of Conduct
 
@@ -10,10 +10,10 @@ Be kind, be constructive, assume good intent. We want LogoGrid to be a friendly 
 
 LogoGrid intentionally stays **simple**:
 
-- ✅ **Single file** — everything lives in `index.html` (HTML + CSS + JS).
-- ✅ **Zero dependencies, zero build step** — no npm, no bundler, no framework.
-- ✅ **100% client-side** — the user's logo must never be uploaded or sent anywhere.
-- ✅ **Accessible & responsive** — keyboard support, ARIA, reduced-motion, mobile-first.
+- ✅ **Single file**: everything lives in `index.html` (HTML + CSS + JS).
+- ✅ **Zero dependencies, zero build step**: no npm, no bundler, no framework.
+- ✅ **100% client-side**: the user's logo must never be uploaded or sent anywhere.
+- ✅ **Accessible & responsive**: keyboard support, ARIA, reduced-motion, mobile-first.
 
 Please keep PRs aligned with these principles. If a change would add a build tool or a runtime dependency, open an issue first to discuss.
 
@@ -71,7 +71,7 @@ Before opening a PR, please confirm:
 - [ ] The change works in the latest Chrome, Firefox, and Safari.
 - [ ] No console errors (check DevTools).
 - [ ] No horizontal scroll on mobile (≤ 480px).
-- [ ] The logo is still **never uploaded** — all processing stays client-side.
+- [ ] The logo is still **never uploaded**: all processing stays client-side.
 - [ ] No new dependencies or build steps were added.
 - [ ] Existing features still work (upload, background removal, single-color mode, lightbox, theme toggle, sliders).
 - [ ] Your PR description explains **what** changed and **why**.
@@ -79,7 +79,7 @@ Before opening a PR, please confirm:
 ## Commit & PR Style
 
 - Use clear, present-tense commit messages: `Add teal-to-lime gradient scenario`.
-- Keep PRs focused — one logical change per PR is easier to review.
+- Keep PRs focused: one logical change per PR is easier to review.
 - Screenshots or a short clip are hugely appreciated for visual changes.
 
 ## Reporting Bugs & Requesting Features
@@ -97,4 +97,4 @@ By contributing, you agree that your contributions are licensed under the projec
 
 Thanks again for helping make LogoGrid better. ⭐ If you enjoy the project, star it and tell a friend!
 
-— A tool by [Prompts2Products](https://prompts2products.com)
+A tool by [Prompts2Products](https://prompts2products.com)
